@@ -1,0 +1,169 @@
+
+CREATE TABLE LOCATION_(
+PIN NUMBER(6) PRIMARY KEY,
+State_ VARCHAR(45),
+City VARCHAR(45),
+Locality VARCHAR(45)
+);
+
+CREATE TABLE  RESTAURANT(
+Restaurant_id INT PRIMARY KEY,
+Name_ VARCHAR(45) NOT NULL,
+Phone_no VARCHAR(12) NOT NULL,
+PIN NUMBER(6) NOT NULL,
+Address VARCHAR(80) NOT NULL,
+Opening_Time TIMESTAMP WITH LOCAL TIME ZONE,
+Closing_Time TIMESTAMP WITH LOCAL TIME ZONE,
+FOREIGN KEY (PIN) REFERENCES LOCATION_(PIN)
+);
+
+CREATE TABLE  RESTAURANT_CUISINES(
+Restaurant_id INT,
+Cuisines VARCHAR(45) NOT NULL,
+FOREIGN KEY (Restaurant_id) REFERENCES RESTAURANT(Restaurant_id),
+PRIMARY KEY(Restaurant_id,Cuisines)
+);
+
+CREATE TABLE COUPONS(
+Promo_Code VARCHAR(20) PRIMARY KEY,
+Offer_percentage INT NOT NULL, 
+Minimum_Order INT NOT NULL,
+Max_Discount INT NOT NULL,
+Details VARCHAR(1000)
+);
+
+CREATE TABLE OFFERS_AVAILABLE(
+Restaurant_id INT,
+Promo_Code VARCHAR(20),
+FOREIGN KEY (Restaurant_id) REFERENCES RESTAURANT(Restaurant_id),
+FOREIGN KEY (Promo_Code) REFERENCES COUPONS(Promo_Code),
+PRIMARY KEY (Restaurant_id,Promo_Code)
+);
+
+
+CREATE TABLE ITEMS(
+Dish_name VARCHAR(45) PRIMARY KEY,
+Type_ VARCHAR(10) NOT NULL,
+Section VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE MENU(
+Restaurant_id INT,
+Dish_name VARCHAR(45),
+Cost_ INT NOT NULL,
+Available SMALLINT NOT NULL,
+FOREIGN KEY (Restaurant_id) REFERENCES RESTAURANT(Restaurant_id),
+FOREIGN KEY (Dish_name) REFERENCES ITEMS(Dish_name),
+PRIMARY KEY (Restaurant_id,Dish_name)
+);
+
+CREATE TABLE PAYMENT_METHODS(
+Name_ VARCHAR(20) PRIMARY KEY,
+Type_ VARCHAR(15) NOT NULL
+);
+
+CREATE TABLE CUSTOMER (
+Customer_id INT PRIMARY KEY,
+Username VARCHAR(45) NOT NULL,
+Email_id VARCHAR(45) NOT NULL,
+Password_ VARCHAR(45) NOT NULL,
+Phone_no VARCHAR(12) NOT NULL
+);
+
+CREATE TABLE HAS (
+Customer_id INT NOT NULL,
+Payment_name VARCHAR(20) NOT NULL,
+FOREIGN KEY (Customer_id) REFERENCES CUSTOMER(Customer_id),
+FOREIGN KEY (Payment_name) REFERENCES PAYMENT_METHODS(Name_),
+PRIMARY KEY (Customer_id,Payment_name)
+);
+
+CREATE TABLE DELIVERY_BOY(
+Delivery_boy_id INT PRIMARY KEY,
+First_Name VARCHAR(45) NOT NULL,
+Last_Name VARCHAR(45),
+Salary INT NOT NULL,
+Bike_no VARCHAR(10) NOT NULL,
+Email_id VARCHAR(45) NOT NULL
+);
+
+CREATE TABLE DELIVERY_BOY_PHONE(
+Delivery_boy_id INT NOT NULL,
+Phone_no VARCHAR(13) NOT NULL,
+FOREIGN KEY (Delivery_boy_id) REFERENCES DELIVERY_BOY(Delivery_boy_id),
+PRIMARY KEY (Delivery_boy_id,Phone_no)
+);
+
+CREATE TABLE ORDERS(
+Order_number INT PRIMARY KEY,
+Restaurant_id INT NOT NULL,
+Customer_id INT NOT NULL,
+Delivery_boy_id INT,
+Delivery_Charge INT NOT NULL,
+Tax INT NOT NULL,
+Promo_Code VARCHAR(20),
+Payment_name VARCHAR(20),
+Transaction_id VARCHAR(30),
+Total FLOAT NOT NULL,
+Description_ VARCHAR(500),
+Address VARCHAR(80) NOT NULL,
+PIN NUMBER(6) NOT NULL,
+FOREIGN KEY (Restaurant_id) REFERENCES RESTAURANT(Restaurant_id),
+FOREIGN KEY (Customer_id) REFERENCES CUSTOMER(Customer_id),
+FOREIGN KEY (Delivery_Boy_id) REFERENCES DELIVERY_BOY(Delivery_Boy_id),
+FOREIGN KEY (Promo_code) REFERENCES COUPONS(Promo_Code),
+FOREIGN KEY (Payment_name) REFERENCES PAYMENT_METHODS(Name_),
+FOREIGN KEY (PIN) REFERENCES LOCATION_(PIN)
+);
+
+CREATE TABLE DELIVERY_BOY_RATING(
+Order_number INT,
+Time_stamp TIMESTAMP NOT NULL,
+Delivery_boy_id INT NOT NULL,
+Rating INT NOT NULL,
+Review VARCHAR(500),
+FOREIGN KEY (Order_number) REFERENCES ORDERS(Order_number),
+FOREIGN KEY (Delivery_boy_id) REFERENCES DELIVERY_BOY(Delivery_boy_id),
+PRIMARY KEY (Order_number)
+);
+
+CREATE TABLE RESTAURANT_RATING(
+Customer_id INT,
+Time_stamp TIMESTAMP,
+Restaurant_id INT NOT NULL,
+Order_number INT,
+Rating INT NOT NULL,
+Review VARCHAR(500),
+FOREIGN KEY (Customer_id) REFERENCES CUSTOMER(Customer_id),
+FOREIGN KEY (Restaurant_id) REFERENCES RESTAURANT(Restaurant_id),
+FOREIGN KEY (Order_number) REFERENCES ORDERS(Order_number),
+PRIMARY KEY (Customer_id,Time_stamp)
+);
+
+CREATE TABLE ORDER_STATUS(
+Order_number INT,
+Time_stamp TIMESTAMP NOT NULL,
+Status VARCHAR(50) NOT NULL,
+FOREIGN KEY (Order_number) REFERENCES ORDERS(Order_number),
+PRIMARY KEY (Order_number,Time_stamp)
+);
+
+CREATE TABLE ORDERED_ITEMS(
+Order_number INT,
+Dish_name VARCHAR(45),
+Quantity INT NOT NULL,
+FOREIGN KEY (Order_number) REFERENCES ORDERS(Order_number),
+FOREIGN KEY (Dish_name) REFERENCES ITEMS(Dish_name),
+PRIMARY KEY (Order_number,Dish_name)
+);
+
+CREATE TABLE ITEMS_RATING(
+Order_number INT NOT NULL,
+Dish_name VARCHAR(45) NOT NULL,
+Time_stamp TIMESTAMP NOT NULL,
+Rating INT NOT NULL,
+Review VARCHAR(500),
+FOREIGN KEY(Order_number) REFERENCES ORDERS(Order_number),
+FOREIGN KEY(Dish_name) REFERENCES ITEMS(Dish_name),
+PRIMARY KEY(Order_number,Dish_name)
+);
